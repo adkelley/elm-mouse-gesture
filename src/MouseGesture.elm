@@ -10,13 +10,12 @@ import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
 import Levenstein exposing ( editDistance )
 import Vector2 as V2
+import GraphicsUtils exposing ( Point, toCollage )
 import Mouse
 import Keyboard
 import Window
 import Time
 import Debug
-
-type alias Point = (Float, Float)
 
 type alias Points =
      List Point
@@ -66,37 +65,9 @@ initialModel =
 
 -- View
 
-toCollage : Point -> Point -> Point -> Point
-toCollage ( w, h ) ( dx, dy ) ( x, y ) =
-  ( x + dx - ( w / 2.0), ( h / 2.0 ) - y - dy)
-
-
-toViewport : Point -> Point -> Point -> Points -> Points
-toViewport (w, h ) ( vw, vh ) ( dx, dy ) points =
-   let 
-      toViewport_ : Point -> Point
-      toViewport_ ( x, y ) =
-        ( vw / w * x + dx, vh / h * y - dy )
-   in
-       List.map toViewport_ <| List.map (toCollage ( w, h ) ( dx, dy )) points
-
-
-drawBorder : Point -> Point -> Form
-drawBorder ( w, h ) ( dx, dy )=
-  let 
-    (left, top) = toCollage (w, h) ( dx, dy ) ( 0.0, 0.0 ) 
-    (right, bottom) = toCollage ( w, h ) ( dx, dy ) ( w, h )
-  in
-      traced { defaultLine
-           | color = black
-           , width = 2
-           }
-           ( path [ (left, top), ( right, top ), ( right, bottom ), ( left, bottom ), ( left, top ) ] )
-
-
 drawGesture : Point -> Point -> Point -> Points -> Form
 drawGesture window viewport offset charPoints
-  = toViewport window viewport offset charPoints
+  =  List.map ( toCollage window viewport offset ) charPoints 
   |> path
   |> traced { defaultLine
             | color = red
@@ -104,9 +75,11 @@ drawGesture window viewport offset charPoints
             }
              
 
-showElementName : String -> Form
-showElementName elementName =
-   toForm ( show elementName )
+showElementName : Float -> Point -> String -> Form
+showElementName scale' offset elementName
+  =  toForm ( show elementName )
+  |> scale scale'
+  |> move offset
 
 
 view : ( Int, Int ) -> Model -> Element
@@ -115,17 +88,13 @@ view ( w, h ) model =
     w' = toFloat w
     h' = toFloat h
     window = ( w', h')
-    vw = w' / 4.0
-    vh = h' / 4.0
-    viewport = (vw, vh)
-    dx = 10.0
-    dy = 10.0
-    offset = ( dx, dy)
+    viewport = ( 400.0, 400.0 )
+    offset = ( 0.0, 0.0)
+    scale = 2.0
   in
-    collage (round ( vw + dx*2 )) (round ( vh + dy*2 ))
-      [ drawBorder viewport offset
-      , drawGesture window viewport offset model.charPoints
-      , showElementName model.elementName
+    collage 400 400
+      [ drawGesture window viewport offset model.charPoints
+      , showElementName scale offset model.elementName
       ]
     
 -- Update
@@ -154,11 +123,11 @@ update action model =
                  |> identifyCharPoints 
              , elementName
                  =  model.mousePoints
+                 |> List.reverse
                  |> Debug.log "Mouse Points: "
                  |> removeClusterPoints
                  |> Debug.log "No Clusters: "
                  |> identifyCharPoints
-                 |> List.reverse 
                  |> Debug.log "CharPoints: "
                  |> matchElement
              }
@@ -188,12 +157,18 @@ matchElement charPoints =
     directionAngle : Point -> Point -> Float
     directionAngle p1 p2 =
       let
-        (d2x, d2y) = V2.direction p1 p2
-        d2x2 = d2x * d2x
-        d2y2 = d2y * d2y
-        sqrtD2 = sqrt ( d2x2 + d2y2 )
+        (p1x, p1y ) = p1
+        a = V2.direction p1 p2
+        ( ax, ay ) = Debug.log "ax, ay" ( fst a, snd a )
+        b = V2.direction ( p1x, p1y ) (p1x+1.0, p1y)
+        angle = V2.dot b a |> acos
+        angle'=
+          if (ax < 0 && ay > 0) ||  (ax > 0 && ay > 0) then
+            -angle
+          else
+            angle
       in
-        Debug.log "Angle: " <| acos( d2x / ( sqrtD2 ) ) 
+        Debug.log "Angle: " angle'
 
 
     direction : Point -> Point -> Char
@@ -201,12 +176,23 @@ matchElement charPoints =
        let
          angle = directionAngle p1 p2
        in
-         case angle of
-           0.0 -> '0'
-           90.0 -> '6'
-           180.0 -> '4'
-           270.0 -> '2'
-           otherwise -> '9'
+         if angle > -0.3926991 && angle <= 0.3926991 then
+           '0'
+              else if angle > 0.3926991 && angle <= 1.178097 then
+                '7'
+              else if angle > 1.178097 && angle <= 1.9634954 then
+                '6'
+              else if angle > 1.9634954 && angle <= 2.74017 then
+                '5'
+              else if angle > 2.74017 && angle >= -2.74017 then
+                '4'
+              else if angle > -2.74017 && angle >= -1.9634954 then
+                '3'
+              else if angle > -1.9634954 && angle >= -1.178097 then
+                '2'
+          else 
+            '1'
+              
 
     levenSequence : Points -> Direction -> Direction
     levenSequence charPoints_ sequence =
@@ -215,7 +201,10 @@ matchElement charPoints =
             List.reverse sequence
 
         p1::p2::tail ->
-            levenSequence (p2::tail) ((direction p1 p2)::sequence)
+          let
+            gesture = direction p1 p2
+          in
+            levenSequence (p2::tail) (gesture::sequence)
 
         otherwise ->
             sequence
@@ -227,7 +216,7 @@ matchElement charPoints =
 
     match : Direction -> String
     match sequence =
-        "My String"
+        "Match point"
                                                  
   in
     match <| Debug.log "Direction" <| levenSequence charPoints [ ]
@@ -247,13 +236,13 @@ identifyCharPoints_ points charPoints =
   in
     case points of
       [ ] ->
-        charPoints
+        List.reverse charPoints
 
       p1::[ ] ->
-        p1::charPoints
+        List.reverse ( p1::charPoints )
 
       p1::p2::[ ] ->
-        p2::charPoints
+        List.reverse ( p2::charPoints )
 
       p1::p2::p3::tail ->
         let 
@@ -309,7 +298,7 @@ removeClusterPoints points =
           p2 :: [ ]
 
     in
-      List.foldl basePoints [  ] points 
+      List.foldl basePoints [  ] points |> List.reverse
      
 
 -- Signals
