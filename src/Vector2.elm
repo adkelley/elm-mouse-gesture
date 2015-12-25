@@ -1,34 +1,45 @@
-module Vector2 where
+module Vector2 ( toVec2, lengthSquared, length
+               , normalize, direction, dot, angle
+               ) where
 
 type alias Vec2 = ( Float, Float )
-type alias Point = ( Float, Float )
+
+-- convert two points in space to a vector
+toVec2 : ( Float, Float ) -> ( Float, Float ) -> Vec2
+toVec2 (ax, ay) ( bx, by ) =
+    ( bx - ax, by - ay )
 
 
-toVec2 : Point -> Point -> Vec2
-toVec2 (rx, ry) ( sx, sy ) =
-    ( sx - rx, sy - ry )
-
+lengthSquared : Vec2 -> Float
+lengthSquared ( v0, v1 ) =
+  v0 * v0 + v1 * v1
+  
 
 length : Vec2 -> Float
-length ( vx, vy ) =
-  sqrt( vx * vx + vy * vy )
+length ( v0, v1 ) =
+  sqrt( v0 * v0 + v1 * v1 )
 
 
 normalize : Vec2 -> Vec2
-normalize ( vx, vy  ) =
+normalize ( v0, v1  ) =
   let 
-    im = 1.0 / length ( vx, vy )
+    im = 1.0 / length ( v0, v1 )
   in
-    ( vx * im, vy * im )
+    ( v0 * im, v1 * im )
   
 -- calculate unit direction vector 
 -- from points r s
-direction : Point -> Point -> Vec2
+direction : ( Float, Float ) -> ( Float, Float ) -> Vec2
 direction r s =
     toVec2 r s |> normalize
 
 
 dot : Vec2 -> Vec2 -> Float
-dot ( ax, ay ) ( bx, by ) =
-    ax * bx + ay * by
+dot ( a0, a1 ) ( b0, b1 ) =
+    a0 * b0 + a1 * b1
 
+{-- compute angle between to vectors -}
+
+angle : Vec2 -> Vec2 -> Float
+angle v1 v2 =
+   (/) ( dot v1 v2 ) ( (*) ( length v1 ) ( length v2 ) ) |> acos

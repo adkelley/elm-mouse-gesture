@@ -8976,11 +8976,11 @@ Elm.ElmTest.make = function (_elm) {
                                 ,elementRunner: elementRunner
                                 ,consoleRunner: consoleRunner
                                 ,stringRunner: stringRunner};
-};Elm.GraphicsUtils = Elm.GraphicsUtils || {};
-Elm.GraphicsUtils.make = function (_elm) {
+};Elm.GraphicUtils = Elm.GraphicUtils || {};
+Elm.GraphicUtils.make = function (_elm) {
    "use strict";
-   _elm.GraphicsUtils = _elm.GraphicsUtils || {};
-   if (_elm.GraphicsUtils.values) return _elm.GraphicsUtils.values;
+   _elm.GraphicUtils = _elm.GraphicUtils || {};
+   if (_elm.GraphicUtils.values) return _elm.GraphicUtils.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
@@ -8996,7 +8996,7 @@ Elm.GraphicsUtils.make = function (_elm) {
       var _p7 = _p0;
       return {ctor: "_Tuple2",_0: _p5._0 / _p4._0 * _p7._0 + _p6._0,_1: _p5._1 / _p4._1 * _p7._1 + _p6._1};
    });
-   var toCollage = F4(function (_p11,_p10,_p9,_p8) {
+   var toCollagePoint = F4(function (_p11,_p10,_p9,_p8) {
       var _p12 = _p11;
       var _p18 = _p12._0;
       var _p17 = _p12._1;
@@ -9008,7 +9008,7 @@ Elm.GraphicsUtils.make = function (_elm) {
       var sh = _p16._1;
       return {ctor: "_Tuple2",_0: (_p15._0 - _p18 / 2.0 + _p14._0) * sw,_1: (_p17 / 2.0 - _p15._1 - _p14._1) * sh};
    });
-   return _elm.GraphicsUtils.values = {_op: _op,toCollage: toCollage};
+   return _elm.GraphicUtils.values = {_op: _op,toCollagePoint: toCollagePoint};
 };Elm.Vector2 = Elm.Vector2 || {};
 Elm.Vector2.make = function (_elm) {
    "use strict";
@@ -9031,10 +9031,110 @@ Elm.Vector2.make = function (_elm) {
       var im = 1.0 / length({ctor: "_Tuple2",_0: _p10,_1: _p11});
       return {ctor: "_Tuple2",_0: _p10 * im,_1: _p11 * im};
    };
+   var angle = F2(function (v1,v2) {
+      return $Basics.acos(A2(F2(function (x,y) {    return x / y;}),A2(dot,v1,v2),A2(F2(function (x,y) {    return x * y;}),length(v1),length(v2))));
+   });
    var lengthSquared = function (_p12) {    var _p13 = _p12;var _p15 = _p13._1;var _p14 = _p13._0;return _p14 * _p14 + _p15 * _p15;};
    var toVec2 = F2(function (_p17,_p16) {    var _p18 = _p17;var _p19 = _p16;return {ctor: "_Tuple2",_0: _p19._0 - _p18._0,_1: _p19._1 - _p18._1};});
    var direction = F2(function (r,s) {    return normalize(A2(toVec2,r,s));});
-   return _elm.Vector2.values = {_op: _op,toVec2: toVec2,lengthSquared: lengthSquared,length: length,normalize: normalize,direction: direction,dot: dot};
+   return _elm.Vector2.values = {_op: _op
+                                ,toVec2: toVec2
+                                ,lengthSquared: lengthSquared
+                                ,length: length
+                                ,normalize: normalize
+                                ,direction: direction
+                                ,dot: dot
+                                ,angle: angle};
+};Elm.PreProcessPoints = Elm.PreProcessPoints || {};
+Elm.PreProcessPoints.make = function (_elm) {
+   "use strict";
+   _elm.PreProcessPoints = _elm.PreProcessPoints || {};
+   if (_elm.PreProcessPoints.values) return _elm.PreProcessPoints.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Vector2 = Elm.Vector2.make(_elm);
+   var _op = {};
+   var removeClusters_ = F2(function (points,noClusters) {
+      removeClusters_: while (true) {
+         var isMinDistance = F2(function (a,b) {
+            var squarePrecision = 64.0;
+            return _U.cmp($Vector2.lengthSquared(A2($Vector2.toVec2,a,b)),squarePrecision) > 0;
+         });
+         var _p0 = points;
+         if (_p0.ctor === "[]") {
+               return noClusters;
+            } else {
+               if (_p0._1.ctor === "[]") {
+                     return noClusters;
+                  } else {
+                     var _p3 = _p0._1._1;
+                     var _p2 = _p0._1._0;
+                     var _p1 = _p0._0;
+                     if (A2(isMinDistance,_p1,_p2)) {
+                           var _v1 = A2($List._op["::"],_p2,_p3),_v2 = A2($List._op["::"],_p2,noClusters);
+                           points = _v1;
+                           noClusters = _v2;
+                           continue removeClusters_;
+                        } else {
+                           var _v3 = A2($List._op["::"],_p1,_p3),_v4 = noClusters;
+                           points = _v3;
+                           noClusters = _v4;
+                           continue removeClusters_;
+                        }
+                  }
+            }
+      }
+   });
+   var removeClusters = function (points) {
+      var head = function (xs) {    var _p4 = $List.head(xs);if (_p4.ctor === "Just") {    return _U.list([_p4._0]);} else {    return _U.list([]);}};
+      return $List.reverse(A2(removeClusters_,points,head(points)));
+   };
+   var identifyCharPoints_ = F2(function (points,charPoints) {
+      identifyCharPoints_: while (true) {
+         var minAngle = $Basics.degrees(20.0);
+         var _p5 = points;
+         if (_p5.ctor === "[]") {
+               return charPoints;
+            } else {
+               if (_p5._1.ctor === "[]") {
+                     return charPoints;
+                  } else {
+                     if (_p5._1._1.ctor === "[]") {
+                           return A2($List._op["::"],_p5._1._0,charPoints);
+                        } else {
+                           var _p9 = _p5._1._1._1;
+                           var _p8 = _p5._1._1._0;
+                           var _p7 = _p5._1._0;
+                           var _p6 = _p5._0;
+                           var bc = A2($Vector2.toVec2,_p7,_p8);
+                           var ab = A2($Vector2.toVec2,_p7,_p6);
+                           var angle = A2($Vector2.angle,ab,bc);
+                           if (_U.cmp(angle,minAngle) > 0) {
+                                 var _v7 = A2($List._op["::"],_p7,A2($List._op["::"],_p8,_p9)),_v8 = A2($List._op["::"],_p7,charPoints);
+                                 points = _v7;
+                                 charPoints = _v8;
+                                 continue identifyCharPoints_;
+                              } else {
+                                 var _v9 = A2($List._op["::"],_p6,A2($List._op["::"],_p8,_p9)),_v10 = charPoints;
+                                 points = _v9;
+                                 charPoints = _v10;
+                                 continue identifyCharPoints_;
+                              }
+                        }
+                  }
+            }
+      }
+   });
+   var identifyCharPoints = function (points) {
+      var head = function (xs) {    var _p10 = $List.head(xs);if (_p10.ctor === "Just") {    return _U.list([_p10._0]);} else {    return _U.list([]);}};
+      return $List.reverse(A2(identifyCharPoints_,points,head(points)));
+   };
+   return _elm.PreProcessPoints.values = {_op: _op,identifyCharPoints: identifyCharPoints,removeClusters: removeClusters};
 };Elm.Tests = Elm.Tests || {};
 Elm.Tests.make = function (_elm) {
    "use strict";
@@ -9044,13 +9144,63 @@ Elm.Tests.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $ElmTest = Elm.ElmTest.make(_elm),
-   $GraphicsUtils = Elm.GraphicsUtils.make(_elm),
+   $GraphicUtils = Elm.GraphicUtils.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
+   $PreProcessPoints = Elm.PreProcessPoints.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Vector2 = Elm.Vector2.make(_elm);
    var _op = {};
+   var emptyCharPoints = function () {
+      var l1 = _U.list([]);
+      return A2($ElmTest.test,"empty list",A2($ElmTest.assertEqual,l1,$PreProcessPoints.identifyCharPoints(l1)));
+   }();
+   var angleLessGreater = function () {
+      var after = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 0.0,_1: 0.15}]);
+      var before = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 1.0,_1: 0.0},{ctor: "_Tuple2",_0: 0.0,_1: 0.15}]);
+      return A2($ElmTest.test,"angleLessGreater than tolerance",A2($ElmTest.assertEqual,after,$PreProcessPoints.identifyCharPoints(before)));
+   }();
+   var angle90 = function () {
+      var after = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 1.0,_1: 0.0},{ctor: "_Tuple2",_0: 1.0,_1: 1.0}]);
+      var before = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 1.0,_1: 0.0},{ctor: "_Tuple2",_0: 1.0,_1: 1.0}]);
+      return A2($ElmTest.test,"angle90 than tolerance",A2($ElmTest.assertEqual,after,$PreProcessPoints.identifyCharPoints(before)));
+   }();
+   var angleGreaterTwo = function () {
+      var after = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 1.0,_1: 0.0}]);
+      var before = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 1.0,_1: 0.0}]);
+      return A2($ElmTest.test,"angleGreater than tolerance but two points",A2($ElmTest.assertEqual,after,$PreProcessPoints.identifyCharPoints(before)));
+   }();
+   var charPointsTests = _U.list([emptyCharPoints,angleGreaterTwo,angleLessGreater,angle90]);
+   var charPointsSuite = A2($ElmTest.suite,"CharPoints suite",charPointsTests);
+   var morePoints = function () {
+      var after = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 10.0,_1: 0.0}]);
+      var before = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0}
+                           ,{ctor: "_Tuple2",_0: 7.0,_1: 0.0}
+                           ,{ctor: "_Tuple2",_0: 10.0,_1: 0.0}
+                           ,{ctor: "_Tuple2",_0: 12.0,_1: 0.0}]);
+      return A2($ElmTest.test,"more points <> threshold",A2($ElmTest.assertEqual,after,$PreProcessPoints.removeClusters(before)));
+   }();
+   var twoPoints = function () {
+      var after = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0}]);
+      var before = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 7.0,_1: 0.0}]);
+      return A2($ElmTest.test,"two points < threshold",A2($ElmTest.assertEqual,after,$PreProcessPoints.removeClusters(before)));
+   }();
+   var onePoint = function () {
+      var l1 = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0}]);
+      return A2($ElmTest.test,"one point",A2($ElmTest.assertEqual,l1,$PreProcessPoints.removeClusters(l1)));
+   }();
+   var emptyClusters = function () {
+      var l1 = _U.list([]);
+      return A2($ElmTest.test,"empty list",A2($ElmTest.assertEqual,l1,$PreProcessPoints.removeClusters(l1)));
+   }();
+   var clusterTests = _U.list([onePoint,twoPoints,morePoints,emptyClusters]);
+   var clusterSuite = A2($ElmTest.suite,"RemoveClusters suite",clusterTests);
+   var angle = function () {
+      var b = {ctor: "_Tuple2",_0: 0.0,_1: 1.0};
+      var a = {ctor: "_Tuple2",_0: 1.0,_1: 0.0};
+      return A2($ElmTest.test,"angleTest",A2($ElmTest.assertEqual,$Basics.pi / 2.0,A2($Vector2.angle,a,b)));
+   }();
    var lengthTest = function () {
       var a = {ctor: "_Tuple2",_0: 5.0,_1: 5.0};
       return A2($ElmTest.test,"lengthTest",A2($ElmTest.assertEqual,$Basics.sqrt(50.0),$Vector2.length(a)));
@@ -9068,7 +9218,7 @@ Elm.Tests.make = function (_elm) {
       var a = {ctor: "_Tuple2",_0: 0.0,_1: 0.0};
       return A2($ElmTest.test,"toVec2",A2($ElmTest.assertEqual,{ctor: "_Tuple2",_0: 1.0,_1: 0.0},A2($Vector2.toVec2,a,b)));
    }();
-   var vec2Tests = _U.list([toVec2Test,lengthTest,lengthSquaredTest,normalizeTest]);
+   var vec2Tests = _U.list([toVec2Test,lengthTest,lengthSquaredTest,normalizeTest,angle]);
    var vector2Suite = A2($ElmTest.suite,"Vector2",vec2Tests);
    var withScaleAndOffset = function () {
       var point = {ctor: "_Tuple2",_0: 0.0,_1: 0.0};
@@ -9077,7 +9227,7 @@ Elm.Tests.make = function (_elm) {
       var window = {ctor: "_Tuple2",_0: 100.0,_1: 100.0};
       return A2($ElmTest.test,
       "cdim / wdim, with offset",
-      A2($ElmTest.assertEqual,{ctor: "_Tuple2",_0: 0.0,_1: 0.0},A4($GraphicsUtils.toCollage,window,collage,offset,point)));
+      A2($ElmTest.assertEqual,{ctor: "_Tuple2",_0: 0.0,_1: 0.0},A4($GraphicUtils.toCollagePoint,window,collage,offset,point)));
    }();
    var withOffset = function () {
       var point = {ctor: "_Tuple2",_0: 0.0,_1: 0.0};
@@ -9086,7 +9236,7 @@ Elm.Tests.make = function (_elm) {
       var window = {ctor: "_Tuple2",_0: 100.0,_1: 100.0};
       return A2($ElmTest.test,
       "cdim = wdim, with offset",
-      A2($ElmTest.assertEqual,{ctor: "_Tuple2",_0: 0.0,_1: 0.0},A4($GraphicsUtils.toCollage,window,collage,offset,point)));
+      A2($ElmTest.assertEqual,{ctor: "_Tuple2",_0: 0.0,_1: 0.0},A4($GraphicUtils.toCollagePoint,window,collage,offset,point)));
    }();
    var withScale = function () {
       var point = {ctor: "_Tuple2",_0: 0.0,_1: 0.0};
@@ -9095,7 +9245,7 @@ Elm.Tests.make = function (_elm) {
       var window = {ctor: "_Tuple2",_0: 100.0,_1: 100.0};
       return A2($ElmTest.test,
       "cdim / wdim, no offset",
-      A2($ElmTest.assertEqual,{ctor: "_Tuple2",_0: -25.0,_1: 25.0},A4($GraphicsUtils.toCollage,window,collage,offset,point)));
+      A2($ElmTest.assertEqual,{ctor: "_Tuple2",_0: -25.0,_1: 25.0},A4($GraphicUtils.toCollagePoint,window,collage,offset,point)));
    }();
    var noOffset = function () {
       var point = {ctor: "_Tuple2",_0: 50.0,_1: 50.0};
@@ -9104,23 +9254,36 @@ Elm.Tests.make = function (_elm) {
       var window = {ctor: "_Tuple2",_0: 100.0,_1: 100.0};
       return A2($ElmTest.test,
       "wdin = cdim, no offset",
-      A2($ElmTest.assertEqual,{ctor: "_Tuple2",_0: 0.0,_1: 0.0},A4($GraphicsUtils.toCollage,window,collage,offset,point)));
+      A2($ElmTest.assertEqual,{ctor: "_Tuple2",_0: 0.0,_1: 0.0},A4($GraphicUtils.toCollagePoint,window,collage,offset,point)));
    }();
    var collageTests = _U.list([noOffset,withScale,withOffset,withScaleAndOffset]);
-   var toCollageSuite = A2($ElmTest.suite,"toCollage",collageTests);
-   var all = A2($ElmTest.suite,"All the suites",_U.list([toCollageSuite,vector2Suite]));
+   var toCollagePointSuite = A2($ElmTest.suite,"toCollagePoint",collageTests);
+   var all = A2($ElmTest.suite,"All the suites",_U.list([toCollagePointSuite,vector2Suite,clusterSuite,charPointsSuite]));
    return _elm.Tests.values = {_op: _op
                               ,noOffset: noOffset
                               ,withScale: withScale
                               ,withOffset: withOffset
                               ,withScaleAndOffset: withScaleAndOffset
                               ,collageTests: collageTests
-                              ,toCollageSuite: toCollageSuite
+                              ,toCollagePointSuite: toCollagePointSuite
                               ,toVec2Test: toVec2Test
                               ,normalizeTest: normalizeTest
                               ,lengthSquaredTest: lengthSquaredTest
                               ,lengthTest: lengthTest
+                              ,angle: angle
                               ,vec2Tests: vec2Tests
                               ,vector2Suite: vector2Suite
+                              ,emptyClusters: emptyClusters
+                              ,onePoint: onePoint
+                              ,twoPoints: twoPoints
+                              ,morePoints: morePoints
+                              ,clusterTests: clusterTests
+                              ,clusterSuite: clusterSuite
+                              ,angleGreaterTwo: angleGreaterTwo
+                              ,angle90: angle90
+                              ,angleLessGreater: angleLessGreater
+                              ,emptyCharPoints: emptyCharPoints
+                              ,charPointsTests: charPointsTests
+                              ,charPointsSuite: charPointsSuite
                               ,all: all};
 };</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Tests)</script></body></html>

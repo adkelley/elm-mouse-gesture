@@ -1,4 +1,6 @@
-module Vector2 where
+module Vector2 ( toVec2, lengthSquared, length
+               , normalize, direction, dot, angle
+               ) where
 
 type alias Vec2 = ( Float, Float )
 
@@ -36,3 +38,8 @@ dot : Vec2 -> Vec2 -> Float
 dot ( a0, a1 ) ( b0, b1 ) =
     a0 * b0 + a1 * b1
 
+{-- compute angle between to vectors -}
+
+angle : Vec2 -> Vec2 -> Float
+angle v1 v2 =
+   (/) ( dot v1 v2 ) ( (*) ( length v1 ) ( length v2 ) ) |> acos

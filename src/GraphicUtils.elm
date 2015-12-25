@@ -1,4 +1,4 @@
-module GraphicsUtils ( Point, toCollage ) where
+module GraphicUtils ( toCollagePoint ) where
 
 type alias Point = ( Float, Float )
 -- window, collage dimensions
@@ -11,8 +11,8 @@ type alias Offset = Point
 Transform a point in window space to a point in collage space
 -}
 
-toCollage : Window -> Collage -> Offset -> Point -> Point
-toCollage ( w, h ) ( cw, ch )( dx, dy ) ( x, y ) =
+toCollagePoint : Window -> Collage -> Offset -> Point -> Point
+toCollagePoint ( w, h ) ( cw, ch )( dx, dy ) ( x, y ) =
   let
     ( sw, sh ) = (cw / w, ch / h) -- percentage Collage / Window
   in
