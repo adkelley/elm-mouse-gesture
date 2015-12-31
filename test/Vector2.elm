@@ -1,4 +1,4 @@
-module Vector2 ( toVec2, lengthSquared, length
+module Vector2 ( Vec2, toVec2, lengthSquared, length
                , normalize, direction, dot, angle
                ) where
 
@@ -38,8 +38,12 @@ dot : Vec2 -> Vec2 -> Float
 dot ( a0, a1 ) ( b0, b1 ) =
     a0 * b0 + a1 * b1
 
-{-- compute angle between to vectors -}
+
+determinant : Vec2 -> Vec2 -> Float
+determinant ( a0, a1 ) ( b0, b1  ) =
+  a0 * b1 - b0 * a1
+
 
 angle : Vec2 -> Vec2 -> Float
 angle v1 v2 =
-   (/) ( dot v1 v2 ) ( (*) ( length v1 ) ( length v2 ) ) |> acos
+   atan2 ( determinant v1 v2 ) ( dot v1 v2 ) 

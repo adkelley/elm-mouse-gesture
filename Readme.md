@@ -26,4 +26,23 @@ I used the following research papers to derive this algorithm:
           from screen coordinates to cartesian coordinates before implementing the functions
           needed for the classification phase.
 - Classification phase
+  - Initialize the list of elements that you wish to match against a mouse gesture
+  - Convert the mouse gesture to a sequence of numbers ( '0'..'7' ) that map to the direction of each line segment. We assign North = '6', South = '2', East = '0', etc. ( see Mouse Gesture Recognition reference given above )
+    1. For each line segment in the mouse gesture, compute the angle between the direction vector & unit vector along the x axis. 
+    2. Using the angle, assign the direction of the line segment to the nearest of the 8 directions given above. For example, a vertical line segment in positive Y direction would be 90 degrees and therefore it would assigned a '6'
+    3. Once all of the line segments have been processed, we obtain a sequence associated with the mouse gesture
+  - With each element in the list, compute the Levenstein cost of matching the mouse gesture's sequence computed above
+  - Return the element that has the lowest Leventein cost
+
 - Display gesture & name of the gesture
+
+## Installation
+
+## Testing
+See [node-elm-test](https://github.com/rtfeldman/node-elm-test)
+
+Usage:
+```
+elm-test init  # Adds the Elm-Test dependency and creates TestRunner.elm and Tests.elm
+elm-test TestRunner.elm  # Runs the tests
+```

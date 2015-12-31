@@ -8976,6 +8976,159 @@ Elm.ElmTest.make = function (_elm) {
                                 ,elementRunner: elementRunner
                                 ,consoleRunner: consoleRunner
                                 ,stringRunner: stringRunner};
+};Elm.Components = Elm.Components || {};
+Elm.Components.make = function (_elm) {
+   "use strict";
+   _elm.Components = _elm.Components || {};
+   if (_elm.Components.values) return _elm.Components.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var initComponent = {name: "",sequence: _U.list([])};
+   var inputField = {name: "Input Field",sequence: _U.list([_U.chr("6"),_U.chr("0")])};
+   var dropDown = {name: "Dropdown",sequence: _U.list([_U.chr("0"),_U.chr("2")])};
+   var components = _U.list([dropDown,inputField]);
+   var Component = F2(function (a,b) {    return {name: a,sequence: b};});
+   return _elm.Components.values = {_op: _op,components: components,initComponent: initComponent,Component: Component};
+};Elm.Levenstein = Elm.Levenstein || {};
+Elm.Levenstein.make = function (_elm) {
+   "use strict";
+   _elm.Levenstein = _elm.Levenstein || {};
+   if (_elm.Levenstein.values) return _elm.Levenstein.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var minimum = F3(function (a,b,c) {    return A2($Basics.min,a,A2($Basics.min,b,c));});
+   var editDistance = F2(function ($try,move) {
+      var ms = function () {    var _p0 = $List.tail(move);if (_p0.ctor === "Just") {    return _p0._0;} else {    return _U.list([]);}}();
+      var ts = function () {    var _p1 = $List.tail($try);if (_p1.ctor === "Just") {    return _p1._0;} else {    return _U.list([]);}}();
+      var cost = _U.eq($List.head($try),$List.head(move)) ? 0 : 1;
+      return _U.eq($try,_U.list([])) ? $List.length(move) : _U.eq(move,_U.list([])) ? $List.length($try) : A3(minimum,
+      A2(F2(function (x,y) {    return x + y;}),A2(editDistance,ts,move),1),
+      A2(F2(function (x,y) {    return x + y;}),A2(editDistance,$try,ms),1),
+      A2(F2(function (x,y) {    return x + y;}),A2(editDistance,ts,ms),cost));
+   });
+   return _elm.Levenstein.values = {_op: _op,editDistance: editDistance};
+};Elm.Vector2 = Elm.Vector2 || {};
+Elm.Vector2.make = function (_elm) {
+   "use strict";
+   _elm.Vector2 = _elm.Vector2 || {};
+   if (_elm.Vector2.values) return _elm.Vector2.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var determinant = F2(function (_p1,_p0) {    var _p2 = _p1;var _p3 = _p0;return _p2._0 * _p3._1 - _p3._0 * _p2._1;});
+   var dot = F2(function (_p5,_p4) {    var _p6 = _p5;var _p7 = _p4;return _p6._0 * _p7._0 + _p6._1 * _p7._1;});
+   var angle = F2(function (v1,v2) {    return A2($Basics.atan2,A2(determinant,v1,v2),A2(dot,v1,v2));});
+   var length = function (_p8) {    var _p9 = _p8;var _p11 = _p9._1;var _p10 = _p9._0;return $Basics.sqrt(_p10 * _p10 + _p11 * _p11);};
+   var normalize = function (_p12) {
+      var _p13 = _p12;
+      var _p15 = _p13._1;
+      var _p14 = _p13._0;
+      var im = 1.0 / length({ctor: "_Tuple2",_0: _p14,_1: _p15});
+      return {ctor: "_Tuple2",_0: _p14 * im,_1: _p15 * im};
+   };
+   var lengthSquared = function (_p16) {    var _p17 = _p16;var _p19 = _p17._1;var _p18 = _p17._0;return _p18 * _p18 + _p19 * _p19;};
+   var toVec2 = F2(function (_p21,_p20) {    var _p22 = _p21;var _p23 = _p20;return {ctor: "_Tuple2",_0: _p23._0 - _p22._0,_1: _p23._1 - _p22._1};});
+   var direction = F2(function (r,s) {    return normalize(A2(toVec2,r,s));});
+   return _elm.Vector2.values = {_op: _op
+                                ,toVec2: toVec2
+                                ,lengthSquared: lengthSquared
+                                ,length: length
+                                ,normalize: normalize
+                                ,direction: direction
+                                ,dot: dot
+                                ,angle: angle};
+};Elm.ClassifyGesture = Elm.ClassifyGesture || {};
+Elm.ClassifyGesture.make = function (_elm) {
+   "use strict";
+   _elm.ClassifyGesture = _elm.ClassifyGesture || {};
+   if (_elm.ClassifyGesture.values) return _elm.ClassifyGesture.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Components = Elm.Components.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Levenstein = Elm.Levenstein.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Vector2 = Elm.Vector2.make(_elm);
+   var _op = {};
+   var lowestScore = F4(function (gesture,elements,match,lowScore) {
+      lowestScore: while (true) {
+         var _p0 = elements;
+         if (_p0.ctor === "[]") {
+               return match;
+            } else {
+               var _p2 = _p0._1;
+               var _p1 = _p0._0;
+               var score = A2($Levenstein.editDistance,_p1.sequence,gesture);
+               if (_U.cmp(score,lowScore) < 0) {
+                     var _v1 = gesture,_v2 = _p2,_v3 = _p1,_v4 = score;
+                     gesture = _v1;
+                     elements = _v2;
+                     match = _v3;
+                     lowScore = _v4;
+                     continue lowestScore;
+                  } else {
+                     var _v5 = gesture,_v6 = _p2,_v7 = match,_v8 = lowScore;
+                     gesture = _v5;
+                     elements = _v6;
+                     match = _v7;
+                     lowScore = _v8;
+                     continue lowestScore;
+                  }
+            }
+      }
+   });
+   var directionChar = F2(function (p1,p2) {
+      var angle_ = A2($Vector2.angle,{ctor: "_Tuple2",_0: 1.0,_1: 0.0},A2($Vector2.toVec2,p1,p2));
+      var pi18 = $Basics.pi / 8.0;
+      var pi38 = 3.0 * pi18;
+      var pi58 = 5.0 * pi18;
+      var pi78 = 7.0 * pi18;
+      return _U.cmp(angle_,0 - pi18) > 0 && _U.cmp(angle_,pi18) < 1 ? _U.chr("0") : _U.cmp(angle_,pi18) > 0 && _U.cmp(angle_,
+      pi38) < 1 ? _U.chr("7") : _U.cmp(angle_,pi38) > 0 && _U.cmp(angle_,pi58) < 1 ? _U.chr("6") : _U.cmp(angle_,pi58) > 0 && _U.cmp(angle_,
+      pi78) < 1 ? _U.chr("5") : _U.cmp(angle_,pi78) > 0 && _U.cmp(angle_,0 - pi78) < 1 ? _U.chr("4") : _U.cmp(angle_,0 - pi18) < 0 && _U.cmp(angle_,
+      0 - pi38) > -1 ? _U.chr("1") : _U.cmp(angle_,0 - pi38) < 0 && _U.cmp(angle_,0 - pi58) > -1 ? _U.chr("2") : _U.cmp(angle_,0 - pi58) < 0 && _U.cmp(angle_,
+      0 - pi78) > -1 ? _U.chr("3") : _U.chr("4");
+   });
+   var makeSequence = F2(function (charPoints,sequence) {
+      makeSequence: while (true) {
+         var _p3 = charPoints;
+         if (_p3.ctor === "::" && _p3._1.ctor === "::") {
+               var _p4 = _p3._1._0;
+               var direction = A2(directionChar,_p3._0,_p4);
+               var _v10 = A2($List._op["::"],_p4,_p3._1._1),_v11 = A2($List._op["::"],direction,sequence);
+               charPoints = _v10;
+               sequence = _v11;
+               continue makeSequence;
+            } else {
+               return $List.reverse(sequence);
+            }
+      }
+   });
+   var classifyGesture = function (charPoints) {
+      var sequence = A2(makeSequence,charPoints,_U.list([]));
+      return A4(lowestScore,sequence,$Components.components,$Components.initComponent,10000);
+   };
+   return _elm.ClassifyGesture.values = {_op: _op,classifyGesture: classifyGesture};
 };Elm.GraphicUtils = Elm.GraphicUtils || {};
 Elm.GraphicUtils.make = function (_elm) {
    "use strict";
@@ -9009,42 +9162,6 @@ Elm.GraphicUtils.make = function (_elm) {
       return {ctor: "_Tuple2",_0: (_p15._0 - _p18 / 2.0 + _p14._0) * sw,_1: (_p17 / 2.0 - _p15._1 - _p14._1) * sh};
    });
    return _elm.GraphicUtils.values = {_op: _op,toCollagePoint: toCollagePoint};
-};Elm.Vector2 = Elm.Vector2 || {};
-Elm.Vector2.make = function (_elm) {
-   "use strict";
-   _elm.Vector2 = _elm.Vector2 || {};
-   if (_elm.Vector2.values) return _elm.Vector2.values;
-   var _U = Elm.Native.Utils.make(_elm),
-   $Basics = Elm.Basics.make(_elm),
-   $Debug = Elm.Debug.make(_elm),
-   $List = Elm.List.make(_elm),
-   $Maybe = Elm.Maybe.make(_elm),
-   $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
-   var _op = {};
-   var dot = F2(function (_p1,_p0) {    var _p2 = _p1;var _p3 = _p0;return _p2._0 * _p3._0 + _p2._1 * _p3._1;});
-   var length = function (_p4) {    var _p5 = _p4;var _p7 = _p5._1;var _p6 = _p5._0;return $Basics.sqrt(_p6 * _p6 + _p7 * _p7);};
-   var normalize = function (_p8) {
-      var _p9 = _p8;
-      var _p11 = _p9._1;
-      var _p10 = _p9._0;
-      var im = 1.0 / length({ctor: "_Tuple2",_0: _p10,_1: _p11});
-      return {ctor: "_Tuple2",_0: _p10 * im,_1: _p11 * im};
-   };
-   var angle = F2(function (v1,v2) {
-      return $Basics.acos(A2(F2(function (x,y) {    return x / y;}),A2(dot,v1,v2),A2(F2(function (x,y) {    return x * y;}),length(v1),length(v2))));
-   });
-   var lengthSquared = function (_p12) {    var _p13 = _p12;var _p15 = _p13._1;var _p14 = _p13._0;return _p14 * _p14 + _p15 * _p15;};
-   var toVec2 = F2(function (_p17,_p16) {    var _p18 = _p17;var _p19 = _p16;return {ctor: "_Tuple2",_0: _p19._0 - _p18._0,_1: _p19._1 - _p18._1};});
-   var direction = F2(function (r,s) {    return normalize(A2(toVec2,r,s));});
-   return _elm.Vector2.values = {_op: _op
-                                ,toVec2: toVec2
-                                ,lengthSquared: lengthSquared
-                                ,length: length
-                                ,normalize: normalize
-                                ,direction: direction
-                                ,dot: dot
-                                ,angle: angle};
 };Elm.PreProcessPoints = Elm.PreProcessPoints || {};
 Elm.PreProcessPoints.make = function (_elm) {
    "use strict";
@@ -9112,7 +9229,7 @@ Elm.PreProcessPoints.make = function (_elm) {
                            var _p7 = _p5._1._0;
                            var _p6 = _p5._0;
                            var bc = A2($Vector2.toVec2,_p7,_p8);
-                           var ab = A2($Vector2.toVec2,_p7,_p6);
+                           var ab = A2($Vector2.toVec2,_p6,_p7);
                            var angle = A2($Vector2.angle,ab,bc);
                            if (_U.cmp(angle,minAngle) > 0) {
                                  var _v7 = A2($List._op["::"],_p7,A2($List._op["::"],_p8,_p9)),_v8 = A2($List._op["::"],_p7,charPoints);
@@ -9142,9 +9259,12 @@ Elm.Tests.make = function (_elm) {
    if (_elm.Tests.values) return _elm.Tests.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
+   $ClassifyGesture = Elm.ClassifyGesture.make(_elm),
+   $Components = Elm.Components.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $ElmTest = Elm.ElmTest.make(_elm),
    $GraphicUtils = Elm.GraphicUtils.make(_elm),
+   $Levenstein = Elm.Levenstein.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $PreProcessPoints = Elm.PreProcessPoints.make(_elm),
@@ -9152,12 +9272,44 @@ Elm.Tests.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm),
    $Vector2 = Elm.Vector2.make(_elm);
    var _op = {};
+   var classifyGesture2 = function () {
+      var match = {name: "Input Field",sequence: _U.list([_U.chr("6"),_U.chr("0")])};
+      var gesture = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 0.0,_1: 1.0},{ctor: "_Tuple2",_0: 1.0,_1: 1.0}]);
+      return A2($ElmTest.test,"Dropdown",A2($ElmTest.assertEqual,match,$ClassifyGesture.classifyGesture(gesture)));
+   }();
+   var classifyGesture1 = function () {
+      var match = {name: "Dropdown",sequence: _U.list([_U.chr("0"),_U.chr("2")])};
+      var gesture = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 1.0,_1: 0.0},{ctor: "_Tuple2",_0: 1.0,_1: -1.0}]);
+      return A2($ElmTest.test,"Dropdown",A2($ElmTest.assertEqual,match,$ClassifyGesture.classifyGesture(gesture)));
+   }();
+   var classifyGestureTests = _U.list([classifyGesture1,classifyGesture2]);
+   var classifyGestureSuite = A2($ElmTest.suite,"ClassifyGesture suite",classifyGestureTests);
+   var emptySequence = function () {
+      var cost = 6;
+      var empty = _U.list([]);
+      var kitten = _U.list([_U.chr("k"),_U.chr("i"),_U.chr("t"),_U.chr("t"),_U.chr("e"),_U.chr("n")]);
+      return A2($ElmTest.test,"Levenstein cost kitten vs. empty list = 6",A2($ElmTest.assertEqual,cost,A2($Levenstein.editDistance,kitten,empty)));
+   }();
+   var kittenSitting = function () {
+      var cost = 3;
+      var sitting = _U.list([_U.chr("s"),_U.chr("i"),_U.chr("t"),_U.chr("t"),_U.chr("i"),_U.chr("n"),_U.chr("g")]);
+      var kitten = _U.list([_U.chr("k"),_U.chr("i"),_U.chr("t"),_U.chr("t"),_U.chr("e"),_U.chr("n")]);
+      return A2($ElmTest.test,"Levenstein cost kitten vs. sitting = 2",A2($ElmTest.assertEqual,cost,A2($Levenstein.editDistance,kitten,sitting)));
+   }();
+   var levensteinTest = _U.list([kittenSitting,emptySequence]);
+   var levensteinSuite = A2($ElmTest.suite,"Levenstein suite",levensteinTest);
+   var initializeComponents = function () {
+      var table = _U.list([{name: "Dropdown",sequence: _U.list([_U.chr("0"),_U.chr("2")])},{name: "Input Field",sequence: _U.list([_U.chr("6"),_U.chr("0")])}]);
+      return A2($ElmTest.test,"initialize components",A2($ElmTest.assertEqual,table,$Components.components));
+   }();
+   var componentsTest = _U.list([initializeComponents]);
+   var componentsSuite = A2($ElmTest.suite,"Components suite",componentsTest);
    var emptyCharPoints = function () {
       var l1 = _U.list([]);
       return A2($ElmTest.test,"empty list",A2($ElmTest.assertEqual,l1,$PreProcessPoints.identifyCharPoints(l1)));
    }();
    var angleLessGreater = function () {
-      var after = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 0.0,_1: 0.15}]);
+      var after = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 1.0,_1: 0.0},{ctor: "_Tuple2",_0: 0.0,_1: 0.15}]);
       var before = _U.list([{ctor: "_Tuple2",_0: 0.0,_1: 0.0},{ctor: "_Tuple2",_0: 1.0,_1: 0.0},{ctor: "_Tuple2",_0: 0.0,_1: 0.15}]);
       return A2($ElmTest.test,"angleLessGreater than tolerance",A2($ElmTest.assertEqual,after,$PreProcessPoints.identifyCharPoints(before)));
    }();
@@ -9196,10 +9348,11 @@ Elm.Tests.make = function (_elm) {
    }();
    var clusterTests = _U.list([onePoint,twoPoints,morePoints,emptyClusters]);
    var clusterSuite = A2($ElmTest.suite,"RemoveClusters suite",clusterTests);
-   var angle = function () {
-      var b = {ctor: "_Tuple2",_0: 0.0,_1: 1.0};
+   var angleTest = function () {
+      var theta = (0 - $Basics.pi) / 2.0;
+      var b = {ctor: "_Tuple2",_0: 0.0,_1: -1.0};
       var a = {ctor: "_Tuple2",_0: 1.0,_1: 0.0};
-      return A2($ElmTest.test,"angleTest",A2($ElmTest.assertEqual,$Basics.pi / 2.0,A2($Vector2.angle,a,b)));
+      return A2($ElmTest.test,"angleTest",A2($ElmTest.assertEqual,theta,A2($Vector2.angle,a,b)));
    }();
    var lengthTest = function () {
       var a = {ctor: "_Tuple2",_0: 5.0,_1: 5.0};
@@ -9218,7 +9371,7 @@ Elm.Tests.make = function (_elm) {
       var a = {ctor: "_Tuple2",_0: 0.0,_1: 0.0};
       return A2($ElmTest.test,"toVec2",A2($ElmTest.assertEqual,{ctor: "_Tuple2",_0: 1.0,_1: 0.0},A2($Vector2.toVec2,a,b)));
    }();
-   var vec2Tests = _U.list([toVec2Test,lengthTest,lengthSquaredTest,normalizeTest,angle]);
+   var vec2Tests = _U.list([toVec2Test,lengthTest,lengthSquaredTest,normalizeTest,angleTest]);
    var vector2Suite = A2($ElmTest.suite,"Vector2",vec2Tests);
    var withScaleAndOffset = function () {
       var point = {ctor: "_Tuple2",_0: 0.0,_1: 0.0};
@@ -9258,7 +9411,9 @@ Elm.Tests.make = function (_elm) {
    }();
    var collageTests = _U.list([noOffset,withScale,withOffset,withScaleAndOffset]);
    var toCollagePointSuite = A2($ElmTest.suite,"toCollagePoint",collageTests);
-   var all = A2($ElmTest.suite,"All the suites",_U.list([toCollagePointSuite,vector2Suite,clusterSuite,charPointsSuite]));
+   var all = A2($ElmTest.suite,
+   "All the suites",
+   _U.list([toCollagePointSuite,vector2Suite,clusterSuite,charPointsSuite,componentsSuite,levensteinSuite,classifyGestureSuite]));
    return _elm.Tests.values = {_op: _op
                               ,noOffset: noOffset
                               ,withScale: withScale
@@ -9270,7 +9425,7 @@ Elm.Tests.make = function (_elm) {
                               ,normalizeTest: normalizeTest
                               ,lengthSquaredTest: lengthSquaredTest
                               ,lengthTest: lengthTest
-                              ,angle: angle
+                              ,angleTest: angleTest
                               ,vec2Tests: vec2Tests
                               ,vector2Suite: vector2Suite
                               ,emptyClusters: emptyClusters
@@ -9285,5 +9440,16 @@ Elm.Tests.make = function (_elm) {
                               ,emptyCharPoints: emptyCharPoints
                               ,charPointsTests: charPointsTests
                               ,charPointsSuite: charPointsSuite
+                              ,initializeComponents: initializeComponents
+                              ,componentsTest: componentsTest
+                              ,componentsSuite: componentsSuite
+                              ,kittenSitting: kittenSitting
+                              ,emptySequence: emptySequence
+                              ,levensteinTest: levensteinTest
+                              ,levensteinSuite: levensteinSuite
+                              ,classifyGesture1: classifyGesture1
+                              ,classifyGesture2: classifyGesture2
+                              ,classifyGestureTests: classifyGestureTests
+                              ,classifyGestureSuite: classifyGestureSuite
                               ,all: all};
 };</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Tests)</script></body></html>

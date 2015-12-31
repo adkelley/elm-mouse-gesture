@@ -29,7 +29,7 @@ identifyCharPoints_ points charPoints =
 
       p1::p2::p3::tail ->
         let 
-          ab = V2.toVec2 p2 p1
+          ab = V2.toVec2 p1 p2
           bc = V2.toVec2 p2 p3
           angle = V2.angle ab bc
         in
