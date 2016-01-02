@@ -1,28 +1,35 @@
-module GraphicUtils ( toCollagePoint ) where
+module GraphicUtils ( toCartesian, toCollage ) where
 
 type alias Point = ( Float, Float )
 -- window, collage dimensions
-type alias Window = Point
 type alias Collage = Point
+type alias Window = Point
 -- in window coordinates
 type alias Offset = Point
 
 {-
-Transform a point in window space to a point in collage space
+Transform a point in screen space to cartesian space
+Mouse points are in screen coordinates, Collage points are in 
+Cartesian coordinates
 -}
 
-toCollagePoint : Window -> Collage -> Offset -> Point -> Point
-toCollagePoint ( w, h ) ( cw, ch )( dx, dy ) ( x, y ) =
+-- toCartesian : Window -> Collage -> Offset -> Point -> Point
+-- toCartesian ( w, h ) ( cw, ch )( dx, dy ) ( x, y ) =
+--   let
+--     ( sw, sh ) = (cw / w, ch / h) -- Scale = percentage Window / Screen
+--   in
+--     ( (x - ( w / 2.0) + dx) * sw, ( ( h / 2.0 ) - y - dy ) * sh)
+
+
+toCartesian : Window -> Point -> Point
+toCartesian ( w, h ) ( x, y ) =
+    ( x - ( w / 2.0), ( h / 2.0 ) - y )
+
+
+toCollage : Window -> Collage -> Offset -> Point -> Point
+toCollage ( w, h ) ( cw, ch )( dx, dy ) ( x, y ) =
   let
-    ( sw, sh ) = (cw / w, ch / h) -- percentage Collage / Window
+    ( sw, sh ) = (cw / w, ch / h) -- Scale = Collage Dimensions / Window Dimensions
   in
-    ( (x - ( w / 2.0) + dx) * sw, ( ( h / 2.0 ) - y - dy ) * sh)
-
-
-{-
-Transform a collage point to viewport point
--}
-toViewport : Point -> Point -> Point -> Point -> Point
-toViewport (w, h ) ( vw, vh ) ( dx, dy ) ( x, y ) =
-  ( (vw / w) * x + dx, (vh / h) * y + dy )
+    ( (x + dx) * sw, ( y + dy ) * sh )
 

@@ -1,7 +1,12 @@
-module Classify where
+module ClassifyGesture ( classifyGesture ) where
 
-import Elements exposing ( elements )
-import Levenstein exposing ( editDistance )
+import Components exposing ( Component, Components, initComponent, components )
+import Levenstein exposing ( Sequence, editDistance )
+-- todo: expose Vec2
+import Vector2 as V2 exposing ( Vec2, angle, toVec2 )
+
+type alias Point = ( Float, Float )
+type alias Points = List Point
 
 {- 
 Given a list of CharPoints, compute the direction vectors and
@@ -9,74 +14,58 @@ use them to determine the closest matching element from the
 list of elements
 -}
 
-matchElement : Points -> String
-matchElement charPoints =
+directionChar : Point -> Point -> Char
+directionChar p1 p2 =
   let
-    directionAngle : Point -> Point -> Float
-    directionAngle p1 p2 =
-      let
-        (p1x, p1y ) = p1
-        a = V2.direction p1 p2
-        ( ax, ay ) = Debug.log "ax, ay" ( fst a, snd a )
-        b = V2.direction ( p1x, p1y ) (p1x+1.0, p1y)
-        angle = V2.dot b a |> acos
-        angle'=
-          if (ax < 0 && ay > 0) ||  (ax > 0 && ay > 0) then
-            -angle
-          else
-            angle
-      in
-        Debug.log "Angle: " angle'
+    pi18 = pi / 8.0
+    pi38 = 3.0 * pi18
+    pi58 = 5.0 * pi18
+    pi78 = 7.0 * pi18
+    angle_ = angle ( 1.0, 0.0 ) ( toVec2 p1 p2 )
+  in
+    if angle_ > -pi18 && angle_ <= pi18 then '0'
+    else if angle_ > pi18 && angle_ <= pi38 then '7'
+    else if angle_ > pi38 && angle_ <= pi58 then '6'
+    else if angle_ > pi58 && angle_ <= pi78 then '5'
+    else if angle_ > pi78 && angle_ <= -pi78 then '4'
+    else if angle_ < -pi18 && angle_ >= -pi38 then '1'
+    else if angle_ < -pi38 && angle_ >= -pi58 then '2'
+    else if angle_ < -pi58 && angle_ >= -pi78 then '3'
+    else '4'
 
 
-    direction : Point -> Point -> Char
-    direction p1 p2 =
-       let
-         angle = directionAngle p1 p2
-       in
-         if angle > -0.3926991 && angle <= 0.3926991 then
-           '0'
-              else if angle > 0.3926991 && angle <= 1.178097 then
-                '7'
-              else if angle > 1.178097 && angle <= 1.9634954 then
-                '6'
-              else if angle > 1.9634954 && angle <= 2.74017 then
-                '5'
-              else if angle > 2.74017 && angle >= -2.74017 then
-                '4'
-              else if angle > -2.74017 && angle >= -1.9634954 then
-                '3'
-              else if angle > -1.9634954 && angle >= -1.178097 then
-                '2'
-          else 
-            '1'
-              
-
-    levenSequence : Points -> Direction -> Direction
-    levenSequence charPoints_ sequence =
-      case charPoints_ of
-        p2::[ ] ->
-            List.reverse sequence
-
+makeSequence : Points -> Sequence -> Sequence
+makeSequence charPoints sequence =
+    case charPoints of
         p1::p2::tail ->
           let
-            gesture = direction p1 p2
+            direction = directionChar p1 p2
           in
-            levenSequence (p2::tail) (gesture::sequence)
+            makeSequence (p2::tail) (direction::sequence)
 
         otherwise ->
-            sequence
-
-    score : Direction -> Direction -> Int
-    score element gesture =
-      editDistance element gesture
+            List.reverse sequence
+  
 
 
-    match : Direction -> String
-    match sequence =
-        "Match point"
-                                                 
+lowestScore : Sequence -> Components -> Component -> Int -> Component
+lowestScore gesture elements match lowScore =
+  case elements of
+    [ ] -> match
+
+    element_::tail ->
+      let 
+        score = editDistance element_.sequence gesture
+      in
+        if score < lowScore
+        then lowestScore gesture tail element_ score
+        else lowestScore gesture tail match lowScore
+
+
+classifyGesture : Points -> Component
+classifyGesture charPoints =
+  let
+    sequence = makeSequence charPoints [  ]
   in
-    match <| Debug.log "Direction" <| levenSequence charPoints [ ]
-
+    lowestScore sequence components initComponent 10000
 

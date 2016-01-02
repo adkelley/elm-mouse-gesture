@@ -38,11 +38,11 @@ dot : Vec2 -> Vec2 -> Float
 dot ( a0, a1 ) ( b0, b1 ) =
     a0 * b0 + a1 * b1
 
+
 determinant : Vec2 -> Vec2 -> Float
 determinant ( a0, a1 ) ( b0, b1  ) =
   a0 * b1 - b0 * a1
 
-{-- compute angle between to vectors -}
 
 angle : Vec2 -> Vec2 -> Float
 angle v1 v2 =

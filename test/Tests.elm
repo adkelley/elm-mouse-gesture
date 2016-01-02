@@ -1,8 +1,8 @@
 module Tests where
 
 import ElmTest exposing (..)
-import GraphicUtils exposing ( toCollagePoint )
-import Vector2 as V2 exposing ( toVec2, normalize, length, angle )
+import GraphicUtils exposing ( toCartesian, toCollage )
+import Vector2 as V2 exposing ( Vec2, toVec2, normalize, length, angle )
 import PreProcessPoints exposing ( removeClusters, identifyCharPoints )
 import Components exposing ( Components, Component, components )
 import Levenstein exposing ( editDistance )
@@ -13,61 +13,71 @@ import ClassifyGesture exposing ( classifyGesture )
 type alias Point = ( Float, Float )
 type alias Points = List Point
 
-{- toCollagePoint Tests -}
+{- toCartesian Tests -}
 
-noOffset : Test
-noOffset =
+toCartesian1 : Test
+toCartesian1 =
   let
     window = ( 100.0, 100.0 )
-    collage = ( 100.0, 100.0 )
-    offset = ( 0.0, 0.0 )
     point = ( 50.0, 50.0 )
+    result = ( 0.0, 0.0 )
   in
-    test "wdin = cdim, no offset" <| assertEqual ( 0.0, 0.0 )
-                        <| toCollagePoint window collage offset point
+    test "wdin = cdim, no offset" ( assertEqual result <| toCartesian window point )
 
-withScale : Test
-withScale =
+toCartesianTests : List Test
+toCartesianTests =
+  [ toCartesian1 ]
+
+
+toCartesianSuite : Test
+toCartesianSuite =
+  suite "toCartesian" toCartesianTests
+
+
+toCollage1 : Test
+toCollage1 =
   let
     window = ( 100.0, 100.0 )
     collage = ( 50.0, 50.0 )
     offset = ( 0.0, 0.0 )
     point = ( 0.0, 0.0 )
+    result = ( 0.0, 0.0 )
   in
-    test "cdim / wdim, no offset" <| assertEqual ( -25.0, 25.0 )
-                        <| toCollagePoint window collage offset point
+    test "cdim / wdim, no offset" <| assertEqual result
+                        <| toCollage window collage offset point
 
-withOffset : Test
-withOffset =
-  let
-    window = ( 100.0, 100.0 )
-    collage = ( 100.0, 100.0 )
-    offset = ( 50.0, 50.0 )
-    point = ( 0.0, 0.0 )
-  in
-    test "cdim = wdim, with offset" <| assertEqual ( 0.0, 0.0 )
-                        <| toCollagePoint window collage offset point
-
-
-withScaleAndOffset : Test
-withScaleAndOffset =
+toCollage2 : Test
+toCollage2 =
   let
     window = ( 100.0, 100.0 )
     collage = ( 50.0, 50.0 )
-    offset = ( 50.0, 50.0 )
-    point = ( 0.0, 0.0 )
+    offset = ( 0.0, 0.0 )
+    point = ( 50.0, -50.0 )
+    result = ( 25.0, -25.0 )
   in
-    test "cdim / wdim, with offset" <| assertEqual ( 0.0, 0.0 )
-                        <| toCollagePoint window collage offset point
-  
-collageTests : List Test
-collageTests =
-  [ noOffset, withScale, withOffset, withScaleAndOffset ]
+    test "cdim / wdim, no offset" <| assertEqual result
+                        <| toCollage window collage offset point
+
+toCollage3 : Test
+toCollage3 =
+  let
+    window = ( 100.0, 100.0 )
+    collage = ( 50.0, 50.0 )
+    offset = ( -2.0, 2.0 )
+    point = ( 50.0, -50.0 )
+    result = ( 25.0-1.0, -25.0+1.0 )
+  in
+    test "cdim / wdim, no offset" <| assertEqual result
+                        <| toCollage window collage offset point
+
+toCollageTests : List Test
+toCollageTests =
+  [ toCollage1, toCollage2, toCollage3 ]
 
 
-toCollagePointSuite : Test
-toCollagePointSuite =
-  suite "toCollagePoint" collageTests
+toCollageSuite : Test
+toCollageSuite =
+  suite "toCollage" toCollageTests
 
 
 {- Vector2 Tests -}
@@ -104,19 +114,38 @@ lengthTest =
     test "lengthTest" <| assertEqual ( sqrt 50.0 ) ( V2.length a )
 
 
-angleTest : Test
-angleTest =
+angle1 : Test
+angle1 =
   let 
     a = ( 1.0, 0.0 )
     b = ( 0.0, -1.0 )
     theta = (-pi) / 2.0
   in
-    test "angleTest" <| assertEqual theta ( V2.angle a b )
+    test "angle1" <| assertEqual theta ( V2.angle a b )
+
+angle2 : Test
+angle2 =
+  let 
+    a = ( 1.0, 0.0 )
+    b = ( 0.0, 1.0 )
+    theta = (pi) / 2.0
+  in
+    test "angle2" <| assertEqual theta ( V2.angle a b )
+
+
+angle3 : Test
+angle3 =
+  let 
+    a = ( 0.0, -1.0 )
+    b = ( 1.0, 0.0 )
+    theta = (pi) / 2.0
+  in
+    test "angle3" <| assertEqual theta ( V2.angle a b )
 
 
 vec2Tests : List Test
 vec2Tests =
- [ toVec2Test, lengthTest, lengthSquaredTest, normalizeTest, angleTest ]
+ [ toVec2Test, lengthTest, lengthSquaredTest, normalizeTest, angle1, angle2, angle3 ]
 
 
 vector2Suite : Test
@@ -171,44 +200,44 @@ clusterSuite =
 
 {- charPoints suite -}
 
-angleGreaterTwo : Test
-angleGreaterTwo =
+identifyCharPoints1 : Test
+identifyCharPoints1 =
   let
     before = [ ( 0.0, 0.0 ), ( 1.0, 0.0 ) ]
     after = [ ( 0.0, 0.0 ), ( 1.0, 0.0 ) ]
   in
-    test "angleGreater than tolerance but two points" <| assertEqual after ( identifyCharPoints before)
+    test "identifyCharPoints1" <| assertEqual after ( identifyCharPoints before)
 
 
-angle90 : Test
-angle90 =
+identifyCharPoints2 : Test
+identifyCharPoints2 =
   let
     before = [ ( 0.0, 0.0 ), ( 1.0, 0.0 ), ( 1.0, 1.0 )]
     after = [ ( 0.0, 0.0 ), ( 1.0, 0.0 ), ( 1.0, 1.0 ) ]
   in
-    test "angle90 than tolerance" <| assertEqual after ( identifyCharPoints before)
+    test "identifyCharPoints2" <| assertEqual after ( identifyCharPoints before)
 
 -- Todo: Review the validity of this test
-angleLessGreater : Test
-angleLessGreater =
+identifyCharPoints3 : Test
+identifyCharPoints3 =
   let
     before = [ ( 0.0, 0.0 ), ( 1.0, 0.0 ), (0.0, 0.15 ) ]
     after = [ ( 0.0, 0.0 ), ( 1.0, 0.0 ), ( 0.0, 0.15 ) ]
   in
-    test "angleLessGreater than tolerance" <| assertEqual after ( identifyCharPoints before)
+    test "identifyCharPoints3" <| assertEqual after ( identifyCharPoints before)
 
 
-emptyCharPoints : Test
-emptyCharPoints =
+identifyCharPoints4 : Test
+identifyCharPoints4 =
   let
     l1 = [ ]
   in
-    test "empty list" <| assertEqual l1 ( identifyCharPoints l1 )
+    test "identifyCharPoints4" <| assertEqual l1 ( identifyCharPoints l1 )
 
 
 charPointsTests : List Test
 charPointsTests =
-  [ emptyCharPoints, angleGreaterTwo, angleLessGreater, angle90 ]
+  [ identifyCharPoints1, identifyCharPoints2, identifyCharPoints3, identifyCharPoints4 ]
 
 
 charPointsSuite : Test
@@ -274,6 +303,8 @@ levensteinSuite : Test
 levensteinSuite =
   suite "Levenstein suite" levensteinTest
 
+
+-- Deprecated by consolidating into classifyGesture
 
 -- xAxis1 : Test
 -- xAxis1 =
@@ -346,7 +377,8 @@ classifyGestureSuite =
 
 all : Test
 all =
-  suite "All the suites" [ toCollagePointSuite
+  suite "All the suites" [ toCartesianSuite
+                         , toCollageSuite
                          , vector2Suite
                          , clusterSuite
                          , charPointsSuite

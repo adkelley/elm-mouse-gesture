@@ -1,15 +1,15 @@
 module Levenstein
-    ( editDistance ) where
+    ( Sequence, editDistance ) where
 
 import List exposing ( head, tail, length )
 
 type alias Cost = Int
-type alias Gesture = List Char
+type alias Sequence = List Char
+
 
 minimum : Cost -> Cost -> Cost -> Cost
 minimum a b c =
   min a (min b c)
-
 
 {-
 Recursive (slow) implementation of the Levenstein Distance Algorithm
@@ -19,7 +19,7 @@ This will need to be refactored to a matrix method for production
 http://people.cs.pitt.edu/~kirk/cs1501/Pruhs/Fall2006/Assignments/editdistance/Levenshtein%20Distance.htm
 -}
 
-editDistance : Gesture -> Gesture -> Cost
+editDistance : Sequence -> Sequence -> Cost
 editDistance try move =
   let 
     cost = 

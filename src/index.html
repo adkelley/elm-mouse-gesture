@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="UTF-8"><title>Vector2</title><style>html,head,body { padding:0; margin:0; }
+<html><head><meta charset="UTF-8"><title>Components</title><style>html,head,body { padding:0; margin:0; }
 body { font-family: calibri, helvetica, arial, sans-serif; }</style><script type="text/javascript">var Elm = Elm || { Native: {} };Elm.Native.Basics = {};
 Elm.Native.Basics.make = function(localRuntime) {
 	localRuntime.Native = localRuntime.Native || {};
@@ -5397,11 +5397,11 @@ Elm.Signal.make = function (_elm) {
                                ,message: message
                                ,forwardTo: forwardTo
                                ,Mailbox: Mailbox};
-};Elm.Vector2 = Elm.Vector2 || {};
-Elm.Vector2.make = function (_elm) {
+};Elm.Components = Elm.Components || {};
+Elm.Components.make = function (_elm) {
    "use strict";
-   _elm.Vector2 = _elm.Vector2 || {};
-   if (_elm.Vector2.values) return _elm.Vector2.values;
+   _elm.Components = _elm.Components || {};
+   if (_elm.Components.values) return _elm.Components.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
@@ -5410,26 +5410,41 @@ Elm.Vector2.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var determinant = F2(function (_p1,_p0) {    var _p2 = _p1;var _p3 = _p0;return _p2._0 * _p3._1 - _p3._0 * _p2._1;});
-   var dot = F2(function (_p5,_p4) {    var _p6 = _p5;var _p7 = _p4;return _p6._0 * _p7._0 + _p6._1 * _p7._1;});
-   var angle = F2(function (v1,v2) {    return A2($Basics.atan2,A2(determinant,v1,v2),A2(dot,v1,v2));});
-   var length = function (_p8) {    var _p9 = _p8;var _p11 = _p9._1;var _p10 = _p9._0;return $Basics.sqrt(_p10 * _p10 + _p11 * _p11);};
-   var normalize = function (_p12) {
-      var _p13 = _p12;
-      var _p15 = _p13._1;
-      var _p14 = _p13._0;
-      var im = 1.0 / length({ctor: "_Tuple2",_0: _p14,_1: _p15});
-      return {ctor: "_Tuple2",_0: _p14 * im,_1: _p15 * im};
-   };
-   var lengthSquared = function (_p16) {    var _p17 = _p16;var _p19 = _p17._1;var _p18 = _p17._0;return _p18 * _p18 + _p19 * _p19;};
-   var toVec2 = F2(function (_p21,_p20) {    var _p22 = _p21;var _p23 = _p20;return {ctor: "_Tuple2",_0: _p23._0 - _p22._0,_1: _p23._1 - _p22._1};});
-   var direction = F2(function (r,s) {    return normalize(A2(toVec2,r,s));});
-   return _elm.Vector2.values = {_op: _op
-                                ,toVec2: toVec2
-                                ,lengthSquared: lengthSquared
-                                ,length: length
-                                ,normalize: normalize
-                                ,direction: direction
-                                ,dot: dot
-                                ,angle: angle};
-};</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Vector2)</script></body></html>
+   var initComponent = {name: "",sequence: _U.list([])};
+   var tab = {name: "Tab",sequence: _U.list([_U.chr("6"),_U.chr("0"),_U.chr("2"),_U.chr("0")])};
+   var combo = {name: "Combo",sequence: _U.list([_U.chr("5"),_U.chr("6"),_U.chr("7"),_U.chr("0")])};
+   var menuBar = {name: "Menu Bar",sequence: _U.list([_U.chr("7"),_U.chr("1"),_U.chr("7"),_U.chr("1"),_U.chr("0")])};
+   var frame = {name: "Frame",sequence: _U.list([_U.chr("1")])};
+   var scroll = {name: "Scroll",sequence: _U.list([_U.chr("0"),_U.chr("4")])};
+   var table = {name: "Table",sequence: _U.list([_U.chr("2"),_U.chr("0"),_U.chr("6")])};
+   var dataType = {name: "Data Type",sequence: _U.list([_U.chr("6"),_U.chr("0"),_U.chr("4")])};
+   var expander = {name: "Expander",sequence: _U.list([_U.chr("2"),_U.chr("5"),_U.chr("0")])};
+   var flyOut = {name: "Fly-out",sequence: _U.list([_U.chr("7"),_U.chr("2"),_U.chr("4")])};
+   var iconButton = {name: "Icon Button",sequence: _U.list([_U.chr("3"),_U.chr("1"),_U.chr("7"),_U.chr("5")])};
+   var textButton = {name: "Text Button",sequence: _U.list([_U.chr("0"),_U.chr("1"),_U.chr("4"),_U.chr("6")])};
+   var link = {name: "Link",sequence: _U.list([_U.chr("2"),_U.chr("0")])};
+   var search = {name: "Search",sequence: _U.list([_U.chr("4"),_U.chr("2"),_U.chr("0"),_U.chr("3")])};
+   var nested = {name: "Nested",sequence: _U.list([_U.chr("1"),_U.chr("3"),_U.chr("0")])};
+   var checkBox = {name: "Check Box",sequence: _U.list([_U.chr("1"),_U.chr("7")])};
+   var inputField = {name: "Input Field",sequence: _U.list([_U.chr("6"),_U.chr("0")])};
+   var dropDown = {name: "Dropdown",sequence: _U.list([_U.chr("0"),_U.chr("2")])};
+   var components = _U.list([dropDown
+                            ,inputField
+                            ,checkBox
+                            ,nested
+                            ,link
+                            ,search
+                            ,textButton
+                            ,iconButton
+                            ,flyOut
+                            ,expander
+                            ,dataType
+                            ,table
+                            ,scroll
+                            ,frame
+                            ,menuBar
+                            ,combo
+                            ,tab]);
+   var Component = F2(function (a,b) {    return {name: a,sequence: b};});
+   return _elm.Components.values = {_op: _op,components: components,initComponent: initComponent,Component: Component};
+};</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Components)</script></body></html>

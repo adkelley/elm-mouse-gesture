@@ -15,7 +15,8 @@ change in angle is 20+ degrees per Hofman & Piaseki
 identifyCharPoints_ : Points -> Points -> Points
 identifyCharPoints_ points charPoints =
   let
-    minAngle = degrees 20.0
+--    minAngle = degrees 20.0
+    minAngle = degrees 22.0
   in
     case points of
       [ ] ->
@@ -31,7 +32,7 @@ identifyCharPoints_ points charPoints =
         let 
           ab = V2.toVec2 p1 p2
           bc = V2.toVec2 p2 p3
-          angle = V2.angle ab bc
+          angle = abs ( V2.angle ab bc )
         in
           if angle > minAngle
             then identifyCharPoints_ (p2::p3::tail) (p2::charPoints)
@@ -61,7 +62,7 @@ removeClusters_  points  noClusters =
     isMinDistance a b =
       let
         -- precision = 8
-        squarePrecision = 64.0
+        squarePrecision = 100.0
       in
         ( V2.toVec2 a b  |> V2.lengthSquared ) > squarePrecision
   in
