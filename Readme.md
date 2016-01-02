@@ -37,7 +37,8 @@ I used the following research papers to derive this algorithm:
 - Display gesture & name of the gesture
 
 ## Data Structures
-Components are characters to match with a user gesture
+Components are characters to match with a user gesture.  
+
 
 ```
 type alias Sequence =
@@ -47,13 +48,30 @@ type alias Component =
     { name : String
     , sequence : Sequence
     }
+
+initComponent : Component
+    { name = ""
+    , sequence = [ ]
+    }
 ```
 
-## Installation & Compile
+You will need to create your Components.elm file and place it into source.  Besides declaring the above data structer, it will contain
+a Component for each character that you want to match. For example, take a look at [Mouse Gesture Recognition](http://www.bytearray.org/?p=91).  
+The Component for the letter 'A' would be the following:
+```
+letterA : Component
+{ name = 'A'
+, sequence = [ '7', '1' ]
+}
+```
+
+## Installation & Compilation
 1. Install [Elm 0.16](http://elm-lang.org/install) 
-2. elm-make MouseGesture.elm --output index.html
+2. elm-make ./src/MouseGesture.elm --output index.html
 
 ## Testing
+All tests are in Tests.elm
+
 See [node-elm-test](https://github.com/rtfeldman/node-elm-test)
 
 Usage:
