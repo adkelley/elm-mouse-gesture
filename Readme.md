@@ -36,7 +36,22 @@ I used the following research papers to derive this algorithm:
 
 - Display gesture & name of the gesture
 
-## Installation
+## Data Structures
+Components are characters to match with a user gesture
+
+```
+type alias Sequence =
+     List Char
+
+type alias Component =
+    { name : String
+    , sequence : Sequence
+    }
+```
+
+## Installation & Compile
+1. Install [Elm 0.16](http://elm-lang.org/install) 
+2. elm-make MouseGesture.elm --output index.html
 
 ## Testing
 See [node-elm-test](https://github.com/rtfeldman/node-elm-test)
