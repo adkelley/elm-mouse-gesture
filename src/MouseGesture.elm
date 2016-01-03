@@ -69,14 +69,14 @@ view ( w, h ) model =
   let
     w' = toFloat w
     h' = toFloat h
-    cw = round ( w' / 4.0 )
-    ch = round ( h' / 4.0 )
+    cw = round ( w'  )
+    ch = round ( h' / 2.0 )
     window = ( w', h')
     collage' = ( toFloat cw, toFloat ch )
     strokeOffset = ( 0.0, 0.0)
     mousePoints = toCartesians window model.mousePoints
     textScale = 2.0
-    textOffset = ( 0.0, -50.0 )
+    textOffset = ( 0.0, -200.0 )
   in
     collage cw ch
       [ drawGesture window collage' strokeOffset mousePoints
