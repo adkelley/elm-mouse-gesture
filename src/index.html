@@ -6898,7 +6898,7 @@ Elm.Components.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var initComponent = {name: "",sequence: _U.list([])};
+   var initComponent = {name: "Waiting for Input",sequence: _U.list([])};
    var tab = {name: "Tab",sequence: _U.list([_U.chr("6"),_U.chr("0"),_U.chr("2"),_U.chr("0")])};
    var combo = {name: "Combo",sequence: _U.list([_U.chr("5"),_U.chr("6"),_U.chr("7"),_U.chr("0")])};
    var menuBar = {name: "Menu Bar",sequence: _U.list([_U.chr("7"),_U.chr("1"),_U.chr("7"),_U.chr("1"),_U.chr("0")])};
@@ -7082,7 +7082,7 @@ Elm.GraphicUtils.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var toCollage = F4(function (_p3,_p2,_p1,_p0) {
+   var toViewport = F4(function (_p3,_p2,_p1,_p0) {
       var _p4 = _p3;
       var _p5 = _p2;
       var _p6 = _p1;
@@ -7097,7 +7097,8 @@ Elm.GraphicUtils.make = function (_elm) {
       var _p12 = _p9;
       return {ctor: "_Tuple2",_0: _p12._0 - _p11._0 / 2.0,_1: _p11._1 / 2.0 - _p12._1};
    });
-   return _elm.GraphicUtils.values = {_op: _op,toCartesian: toCartesian,toCollage: toCollage};
+   var toCartesians = F2(function (window,points) {    return A2($List.map,toCartesian(window),points);});
+   return _elm.GraphicUtils.values = {_op: _op,toCartesian: toCartesian,toCartesians: toCartesians,toViewport: toViewport};
 };Elm.PreProcessPoints = Elm.PreProcessPoints || {};
 Elm.PreProcessPoints.make = function (_elm) {
    "use strict";
@@ -7147,6 +7148,7 @@ Elm.PreProcessPoints.make = function (_elm) {
       var head = function (xs) {    var _p4 = $List.head(xs);if (_p4.ctor === "Just") {    return _U.list([_p4._0]);} else {    return _U.list([]);}};
       return $List.reverse(A2(removeClusters_,points,head(points)));
    };
+   var isCluster = F2(function (a,b) {    var squarePrecision = 100.0;return _U.cmp($Vector2.lengthSquared(A2($Vector2.toVec2,a,b)),squarePrecision) < 0;});
    var identifyCharPoints_ = F2(function (points,charPoints) {
       identifyCharPoints_: while (true) {
          var minAngle = $Basics.degrees(22.0);
@@ -7187,7 +7189,7 @@ Elm.PreProcessPoints.make = function (_elm) {
       var head = function (xs) {    var _p10 = $List.head(xs);if (_p10.ctor === "Just") {    return _U.list([_p10._0]);} else {    return _U.list([]);}};
       return $List.reverse(A2(identifyCharPoints_,points,head(points)));
    };
-   return _elm.PreProcessPoints.values = {_op: _op,identifyCharPoints: identifyCharPoints,removeClusters: removeClusters};
+   return _elm.PreProcessPoints.values = {_op: _op,identifyCharPoints: identifyCharPoints,isCluster: isCluster,removeClusters: removeClusters};
 };Elm.MouseGesture = Elm.MouseGesture || {};
 Elm.MouseGesture.make = function (_elm) {
    "use strict";
@@ -7212,58 +7214,56 @@ Elm.MouseGesture.make = function (_elm) {
    $Time = Elm.Time.make(_elm),
    $Window = Elm.Window.make(_elm);
    var _op = {};
-   var MouseDown = function (a) {    return {ctor: "MouseDown",_0: a};};
+   var update = F2(function (action,model) {
+      var _p0 = action;
+      switch (_p0.ctor)
+      {case "NoOp": return model;
+         case "MouseUp": if (model.mousePressed) {
+                 var charPoints$ = $PreProcessPoints.identifyCharPoints($List.reverse(model.mousePoints));
+                 return _U.update(model,
+                 {mousePoints: _U.list([]),mousePressed: false,charPoints: charPoints$,component: $ClassifyGesture.classifyGesture(charPoints$)});
+              } else return model;
+         default: var position = A2($GraphicUtils.toCartesian,
+           {ctor: "_Tuple2",_0: $Basics.toFloat(_p0._0._0),_1: $Basics.toFloat(_p0._0._1)},
+           {ctor: "_Tuple2",_0: $Basics.toFloat(_p0._1._0),_1: $Basics.toFloat(_p0._1._1)});
+           var isCluster$ = _U.eq(position,model.lastPosition) || A2($PreProcessPoints.isCluster,model.lastPosition,position);
+           var lastPosition$ = isCluster$ ? model.lastPosition : position;
+           return _U.update(model,
+           {mousePressed: true,mousePoints: isCluster$ ? model.mousePoints : A2($List._op["::"],position,model.mousePoints),lastPosition: lastPosition$});}
+   });
+   var MouseDown = F2(function (a,b) {    return {ctor: "MouseDown",_0: a,_1: b};});
    var MouseUp = function (a) {    return {ctor: "MouseUp",_0: a};};
    var mouseUpDown = function () {
-      var toAction = F3(function (n,pos,dim) {    var _p0 = n;if (_p0 === false) {    return MouseUp(dim);} else {    return MouseDown(pos);}});
+      var toAction = F3(function (n,pos,dim) {    var _p1 = n;if (_p1 === false) {    return MouseUp(dim);} else {    return A2(MouseDown,dim,pos);}});
       var actions = A4($Signal.map3,toAction,$Keyboard.ctrl,$Mouse.position,$Window.dimensions);
       var delta = $Time.fps(30);
       return A2($Signal.sampleOn,delta,actions);
    }();
    var input = mouseUpDown;
    var NoOp = {ctor: "NoOp"};
-   var toCartesians = F2(function (window,points) {    return A2($List.map,$GraphicUtils.toCartesian(window),points);});
-   var update = F2(function (action,model) {
-      var _p1 = action;
-      switch (_p1.ctor)
-      {case "NoOp": return model;
-         case "MouseUp": if (model.mousePressed) {
-                 var charPoints$ = $PreProcessPoints.identifyCharPoints($PreProcessPoints.removeClusters(A2(toCartesians,
-                 {ctor: "_Tuple2",_0: $Basics.toFloat(_p1._0._0),_1: $Basics.toFloat(_p1._0._1)},
-                 $List.reverse(model.mousePoints))));
-                 return _U.update(model,
-                 {mousePoints: _U.list([]),mousePressed: false,charPoints: charPoints$,component: $ClassifyGesture.classifyGesture(charPoints$)});
-              } else return model;
-         default: var position = {ctor: "_Tuple2",_0: $Basics.toFloat(_p1._0._0),_1: $Basics.toFloat(_p1._0._1)};
-           return _U.update(model,
-           {mousePressed: true
-           ,mousePoints: _U.eq(position,model.lastPosition) ? model.mousePoints : A2($List._op["::"],position,model.mousePoints)
-           ,lastPosition: position});}
-   });
    var showElementName = F3(function (scale$,offset,elementName) {
       return A2($Graphics$Collage.move,offset,A2($Graphics$Collage.scale,scale$,$Graphics$Collage.toForm($Graphics$Element.show(elementName))));
    });
    var drawGesture = F4(function (window,collage,offset,charPoints) {
       return A2($Graphics$Collage.traced,
       _U.update($Graphics$Collage.defaultLine,{color: $Color.red,width: 4}),
-      $Graphics$Collage.path(A2($List.map,A3($GraphicUtils.toCollage,window,collage,offset),charPoints)));
+      $Graphics$Collage.path(A2($List.map,A3($GraphicUtils.toViewport,window,collage,offset),charPoints)));
    });
    var view = F2(function (_p2,model) {
       var _p3 = _p2;
-      var textOffset = {ctor: "_Tuple2",_0: 0.0,_1: -200.0};
+      var textOffset = {ctor: "_Tuple2",_0: 0.0,_1: 0.0};
       var textScale = 2.0;
+      var strokeOffset = {ctor: "_Tuple2",_0: 0.0,_1: 0.0};
       var h$ = $Basics.toFloat(_p3._1);
       var ch = $Basics.round(h$ / 2.0);
       var w$ = $Basics.toFloat(_p3._0);
       var cw = $Basics.round(w$);
       var collage$ = {ctor: "_Tuple2",_0: $Basics.toFloat(cw),_1: $Basics.toFloat(ch)};
       var window = {ctor: "_Tuple2",_0: w$,_1: h$};
-      var mousePoints = A2(toCartesians,window,model.mousePoints);
-      var strokeOffset = {ctor: "_Tuple2",_0: w$ / 6.0,_1: 0.0};
       return A3($Graphics$Collage.collage,
       cw,
       ch,
-      _U.list([A4(drawGesture,window,collage$,strokeOffset,mousePoints)
+      _U.list([A4(drawGesture,window,collage$,strokeOffset,model.mousePoints)
               ,A4(drawGesture,window,collage$,strokeOffset,model.charPoints)
               ,A3(showElementName,textScale,textOffset,model.component.name)]));
    });
@@ -7281,7 +7281,6 @@ Elm.MouseGesture.make = function (_elm) {
                                      ,drawGesture: drawGesture
                                      ,showElementName: showElementName
                                      ,view: view
-                                     ,toCartesians: toCartesians
                                      ,NoOp: NoOp
                                      ,MouseUp: MouseUp
                                      ,MouseDown: MouseDown

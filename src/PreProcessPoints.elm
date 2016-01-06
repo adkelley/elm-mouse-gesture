@@ -1,4 +1,4 @@
-module PreProcessPoints ( identifyCharPoints, removeClusters  ) where
+module PreProcessPoints ( identifyCharPoints, isCluster, removeClusters  ) where
 
 import Vector2 as V2
 
@@ -54,6 +54,15 @@ identifyCharPoints points =
 The constraint of the minimal distance protects against creation
 of spatial clusters of points.
 -}
+
+isCluster : Point -> Point -> Bool
+isCluster a b =
+  let
+    -- precision = 10
+    squarePrecision = 100.0
+  in
+    ( V2.toVec2 a b  |> V2.lengthSquared ) < squarePrecision
+    
 
 removeClusters_ : Points -> Points -> Points
 removeClusters_  points  noClusters =

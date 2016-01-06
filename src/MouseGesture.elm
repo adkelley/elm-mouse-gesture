@@ -9,9 +9,9 @@ import Color exposing ( .. )
 import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
 
-import GraphicUtils exposing ( toCartesian, toCollage )
+import GraphicUtils exposing ( Point, Points, toCartesian, toViewport )
 --import Vector2 as V2 exposing ( Vec2, toVec2, normalize, length, angle )
-import PreProcessPoints exposing ( removeClusters, identifyCharPoints )
+import PreProcessPoints exposing ( isCluster, identifyCharPoints )
 import Components exposing ( Component, initComponent )
 --import Levenstein exposing ( editDistance )
 import ClassifyGesture exposing ( classifyGesture )
@@ -21,9 +21,6 @@ import Keyboard
 import Window
 import Time
 --import Debug
-
-type alias Point = ( Float, Float )
-type alias Points =  List Point
 
 type alias Model =
     { mousePoints : Points
@@ -49,7 +46,7 @@ initialModel =
 drawGesture : Point -> Point -> Point -> Points -> Form
 drawGesture window collage offset charPoints
 -- todo: map collage coordinates to a viewport
-  = List.map ( toCollage window collage offset ) charPoints 
+  = List.map ( toViewport window collage offset ) charPoints 
   |> path
   |> traced { defaultLine
             | color = red
@@ -74,27 +71,21 @@ view ( w, h ) model =
     window = ( w', h')
     collage' = ( toFloat cw, toFloat ch )
     strokeOffset = ( 0.0, 0.0)
-    mousePoints = toCartesians window model.mousePoints
     textScale = 2.0
-    textOffset = ( 0.0, -200.0 )
+    textOffset = ( 0.0, 0.0 )
   in
     collage cw ch
-      [ drawGesture window collage' strokeOffset mousePoints
+      [ drawGesture window collage' strokeOffset model.mousePoints
       , drawGesture window collage' strokeOffset model.charPoints
       , showElementName textScale textOffset model.component.name
       ]
     
 -- Update
 
-toCartesians : Point -> Points -> Points
-toCartesians window points =
-  List.map ( toCartesian window ) points
-
-
 type Action
   = NoOp
   | MouseUp ( Int, Int )
-  | MouseDown ( Int, Int )
+  | MouseDown ( Int, Int ) ( Int, Int )
 
 
 update : Action -> Model -> Model
@@ -110,11 +101,6 @@ update action model =
                charPoints'
                  =  model.mousePoints
                  |> List.reverse
---                 |> Debug.log "Mouse Points: "
-                 |> toCartesians ( toFloat w, toFloat h )
---                 |> Debug.log "toCartesian: " 
-                 |> removeClusters
---                 |> Debug.log "No Clusters: "
                  |> identifyCharPoints
 --                 |> Debug.log "CharPoints: "
              in
@@ -128,19 +114,24 @@ update action model =
              }
             else model
 
-      MouseDown ( x, y ) ->
+      MouseDown ( w, h ) ( x, y ) ->
           let 
             position =
-                (toFloat x, toFloat y  )
+                toCartesian ( toFloat w, toFloat h ) (toFloat x, toFloat y  )
+            isCluster' = 
+                ( position == model.lastPosition ) || isCluster model.lastPosition position
+            lastPosition' =
+                if isCluster'
+                then model.lastPosition
+                else position
           in
             { model
             | mousePressed = True
-            , mousePoints =
-                if position == model.lastPosition then
-                  model.mousePoints
-                else
-                  position :: model.mousePoints
-            , lastPosition = position
+            , mousePoints = 
+                if isCluster'
+                  then model.mousePoints
+                  else position :: model.mousePoints
+            , lastPosition = lastPosition'
             }
 
 
@@ -154,7 +145,7 @@ mouseUpDown =
       toAction n pos dim =
           case n of
             False -> MouseUp dim
-            True -> MouseDown pos
+            True -> MouseDown dim pos
 
       actions = Signal.map3 toAction Keyboard.ctrl Mouse.position Window.dimensions
 

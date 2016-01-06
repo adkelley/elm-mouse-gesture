@@ -1,8 +1,12 @@
-module GraphicUtils ( toCartesian, toCollage ) where
+module GraphicUtils ( Point, Points, toCartesian
+                    , toCartesians, toViewport
+                    ) where
 
 type alias Point = ( Float, Float )
+type alias Points = List Point
+
 -- window, collage dimensions
-type alias Collage = Point
+type alias Collage = Point  -- collage == viewport
 type alias Window = Point
 -- in window coordinates
 type alias Offset = Point
@@ -26,8 +30,13 @@ toCartesian ( w, h ) ( x, y ) =
     ( x - ( w / 2.0), ( h / 2.0 ) - y )
 
 
-toCollage : Window -> Collage -> Offset -> Point -> Point
-toCollage ( w, h ) ( cw, ch )( dx, dy ) ( x, y ) =
+toCartesians : Point -> Points -> Points
+toCartesians window points =
+  List.map ( toCartesian window ) points
+
+
+toViewport : Window -> Collage -> Offset -> Point -> Point
+toViewport ( w, h ) ( cw, ch )( dx, dy ) ( x, y ) =
   let
     ( sw, sh ) = (cw / w, ch / h) -- Scale = Collage Dimensions / Window Dimensions
   in
